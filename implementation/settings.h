@@ -17,7 +17,7 @@ __device__ vec3 random_direction(curandState *local_rand_state) {
 	do {
 		p = 2.0*vec3(curand_uniform(local_rand_state), curand_uniform(local_rand_state), curand_uniform(local_rand_state))
 			- vec3(1, 1, 1);
-	} while (p.squared_length() >= 2.0);
+	} while (p.squared_length() >= 5.0);
 	return p;
 }
 

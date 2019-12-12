@@ -11,15 +11,21 @@ __device__ vec3 color(ray& r, hitable_list **world, curandState *local_rand_stat
 	ray cur_ray = r;
 	float cur_attenuation = 1.0;
 	vec3 tmp = random_direction(local_rand_state);
+	bool flg = false;
 	for (int i = 0; i < 5; i++) { // this is to find the degree of darkening
 		hit_record rec;
-		if ((*world)->hit(cur_ray, 0.0001, FLT_MAX, rec)) {
-			cur_attenuation *= 0.5;
+		bool k = (*world)->hit(cur_ray, 0.0001, FLT_MAX, rec);
+		if (k && rec.isLight && !flg)
+			return 0.5 * vec3(0.5, 0.8, 0.3);
+		if (k && !rec.isLight) {
+			cur_attenuation *= 0.9;
 			cur_ray = ray(rec.p, rec.normal + tmp);
+			flg = true;
+			continue;
 		}
-		else {
+		else if(k && rec.isLight){
 			vec3 unit_direction = unit_vector(cur_ray.direction());
-			float t = 0.5 * (unit_direction.x() + 1.0);
+			float t = 0.5 * (unit_direction.y() + 1.0);
 			vec3 c = (1.0 - t) * vec3(1.0, 1.0, 1.0) + t * vec3(0.5, 0.7, 1.0);
 			return cur_attenuation * c;
 		}
@@ -55,10 +61,11 @@ __global__ void render(vec3 *fb, int max_x, int max_y, int k, camera **cam, hita
 
 __global__ void create_world(hitable **d_list, hitable_list **d_world, camera **d_camera) {
 	if (threadIdx.x == 0 && blockIdx.x == 0) {
-		d_list[0] = new sphere(vec3(0, 0, -1), 0.5);
-		d_list[1] = new sphere(vec3(0, -100.5, -1), 100);
-		d_list[2] = new sphere(vec3(1, 0, -1), 0.5);
-		*d_world = new hitable_list(d_list, 3);
+		d_list[0] = new sphere(vec3(0, 0, -1), 0.5, false);
+		d_list[1] = new sphere(vec3(0, -100.5, -1), 100, false);
+		d_list[2] = new sphere(vec3(1, 0.5, -0.5), 0.3, true);
+		d_list[3] = new sphere(vec3(-1, 0.5, -1), 0.3, true);
+		*d_world = new hitable_list(d_list, 4);
 		*d_camera = new camera();
 	}
 }
@@ -74,7 +81,7 @@ __global__ void free_world(hitable **d_list, hitable_list **d_world, camera **d_
 int main() {
 	int x = 600;
 	int y = 300;
-	int k = 12;
+	int k = 30;
 	int tx = 8;
 	int ty = 8;
 
@@ -117,9 +124,9 @@ int main() {
 	for (int j = y - 1; j >= 0; j--) {
 		for (int i = 0; i < x; i++) {
 			size_t pixel_index = j * x + i;
-			int ir = int(255.99*fb[pixel_index].r());
-			int ig = int(255.99*fb[pixel_index].g());
-			int ib = int(255.99*fb[pixel_index].b());
+			int ir = int(255*fb[pixel_index].r());
+			int ig = int(255*fb[pixel_index].g());
+			int ib = int(255*fb[pixel_index].b());
 			fprintf(f, "%d %d %d ", ir, ig, ib);
 		}
 	}

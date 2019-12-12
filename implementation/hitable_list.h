@@ -32,7 +32,7 @@ public:
 class sphere : public hitable {
 public:
 	__device__ sphere() {}
-	__device__ sphere(vec3 cen, float r) : center(cen), radius(r) {};
+	__device__ sphere(vec3 cen, float r, bool l) : center(cen), radius(r), isLight(l) {};
 	__device__ bool hit(const ray& r, float t_min, float t_max, hit_record& rec) const {
 		vec3 oc = r.origin() - center;
 		float a = dot(r.direction(), r.direction());
@@ -45,6 +45,7 @@ public:
 				rec.t = temp;
 				rec.p = r.point_at_parameter(rec.t);
 				rec.normal = (rec.p - center) / radius;
+				rec.isLight = isLight;
 				return true;
 			}
 			temp = (-b + sqrt(d)) / a;
@@ -52,6 +53,7 @@ public:
 				rec.t = temp;
 				rec.p = r.point_at_parameter(rec.t);
 				rec.normal = (rec.p - center) / radius;
+				rec.isLight = isLight;
 				return true;
 			}
 		}
@@ -59,6 +61,7 @@ public:
 	}
 	vec3 center;
 	float radius;
+	bool isLight;
 };
 
 #endif
