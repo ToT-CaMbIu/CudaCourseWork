@@ -18,7 +18,7 @@ __device__ float3 color(ray& r, hitable_list **world, curandState *local_rand_st
 		if (k && rec.isLight && !flg)
 			return make_float3(1.0, 1.0, 1.0);
 		if (k && !rec.isLight) {
-			cur_attenuation *= 0.5;
+			cur_attenuation *= 0.15;
 			cur_ray = ray(rec.p, rec.normal + tmp);
 			flg = true;
 			continue;
