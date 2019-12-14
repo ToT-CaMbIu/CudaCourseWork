@@ -1,27 +1,27 @@
 #ifndef RAYH
 #define RAYH
-#include "vec3.h"
+#include "float3_operations.h"
 
 class ray
 {
 public:
 	__device__ ray() {}
-	__device__ ray(const vec3& a, const vec3& b) {
+	__device__ ray(const float3 & a, const float3 & b) {
 		A = a; 
 		B = b;
 	}
-	__device__ vec3 origin() const {
+	__device__ float3 origin() const {
 		return A; 
 	}
-	__device__ vec3 direction() const {
+	__device__ float3 direction() const {
 		return B;
 	}
-	__device__ vec3 point_at_parameter(float t) const {
+	__device__ float3 point_at_parameter(float t) const {
 		return A + t * B; 
 	}
 
-	vec3 A;
-	vec3 B;
+	float3 A;
+	float3 B;
 };
 
 #endif

@@ -6,8 +6,8 @@
 struct hit_record
 {
 	float t;
-	vec3 p;
-	vec3 normal;
+	float3 p;
+	float3 normal;
 	bool isLight;
 };
 
